@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8" />
+    <title>Unity of Fairfax Organizational Structure</title>
+
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <link rel="stylesheet" type="text/css" href="css/drag-drop.css" />
+    <link rel="stylesheet" type="text/css" href="css/concepts.css" />
+
+    <script async defer
+        title   ="Function Defs"
+        type    ="application/javascript"
+        src     ="dragdrop.js"
+    ></script>
+
+    <script defer
+        title   ="Storage (JSON utilities)"
+        type    ="application/javascript"
+        src     ="storage.js"
+    ></script>
+
+    <script defer title="Initialization">
+        function resetData() {
+            const main = document.querySelector('main')
+            main.querySelectorAll('.group:not(.top-level)').forEach( el => el.remove() )
+            main.querySelectorAll('.group.top-level .ministries li').forEach( el => el.remove() )
+        }
+        const buttons = {
+            prompt(promptText = 'Got a name?') {
+                return window.prompt(promptText)
+            },
+
+            newMinistry() {
+                const name = this.prompt()
+                if (!name) { return }
+
+                const ministry = document.createElement('li')
+                ministry.classList.add('ministry')
+                ministry.setAttribute('draggable', true)
+                ministry.append(
+                    document.createTextNode(name)
+                )
+                const topLevelMinistries = document.querySelector('main .ministries ul')
+                topLevelMinistries.append(ministry)
+                initDraggable(ministry)
+            },
+
+            newGroup() {
+                const name = this.prompt()
+                if (!name) { return }
+
+                const group = createGroup()
+                const groupTitle = group.querySelector('dt')
+                groupTitle.append(
+                    document.createTextNode(name)
+                )
+                document.querySelector('main').append(group)
+                initDraggable(groupTitle)
+                initDropzone(group)
+            },
+
+            saveData() {
+                const a     = document.createElement('a')
+                const data  = JSON.stringify(
+                    OrgToJSON(document.querySelector('main')),
+                    null,
+                    4
+                )
+                const blob  = new Blob([data], { type: 'application/json' })
+                a.href      = URL.createObjectURL(blob)
+                a.download  = `UOF-org-data-${new Date().toISOString()}.json`
+                a.click()
+            },
+
+            readFile() {
+
+            },
+
+            loadData() {
+
+            }
+        
+        }
+        function initButtons() {
+            [
+                'newMinistry',
+                'newGroup',
+                'saveData'
+            ].forEach( id => {
+                const button = document.getElementById(id)
+                button.addEventListener('click', (evt) => {
+                    buttons[id]()
+                })
+            })
+            const loadButton = document.getElementById('readFile')
+            
+            loadButton.addEventListener('change', async function(evt) {
+                const inputEl = evt.target
+                const fileList = inputEl.files
+                // try {
+                    const fileText = await fileList[0].text()
+                    // console.debug(fileText)
+                    const data = JSON.parse(fileText)
+                    resetData()
+                    populate(data)
+                // }
+            }, false)
+        }
+        /**
+         *  Clones and returns the `<template>` for a blank group.
+         *  @returns {HTMLDListElement}
+         */
+        function createGroup(id = 'group-template') {
+            const tpl = document.getElementById(id)
+            const group = tpl.content.firstElementChild.cloneNode(true)
+
+            const draggables = Array.from(group.querySelectorAll('*[draggable]'))
+            draggables.forEach(initDraggable)
+
+            const dropzones = Array.from(group.querySelectorAll('.dropzone'))
+            dropzones.forEach(initDropzone)
+            return group
+        }
+        function populateMinistryList(ul, ministries) {
+            for (let m of ministries) {
+                const li = document.createElement('li')
+                li.classList.add('ministry')
+                li.setAttribute('draggable', 'true')
+                li.append(
+                    document.createTextNode(m)  // handles entity escapes
+                )
+                ul.append(li)
+            }
+        }
+        function populate(data, groupEl = document.querySelector('main')) {
+            for (let obj of data) {
+
+                //  Special case: Ministries not in any group
+                if (obj instanceof Array) {
+                    const ul = groupEl.querySelector('.group.top-level .ministries ul')
+                    populateMinistryList(ul, obj)
+                    continue
+                }
+
+                const g = createGroup()
+                const dt = g.querySelector('dt')
+                dt.append(
+                    document.createTextNode(obj.name)
+                )
+                if (obj.ministries) {
+                    const ministries = g.querySelector('.ministries')
+                    const ul = ministries.querySelector('ul')
+                    populateMinistryList(ul, obj.ministries)
+                }
+                if (obj.subgroups) {
+                    const subgroupsContainer = g.querySelector('.subgroups')
+                    populate(obj.subgroups, subgroupsContainer)
+                }
+                groupEl.append(g)
+            }
+        }
+        function initDraggable(el) {
+            el.addEventListener('dragstart',    onDragStart , false)
+            el.addEventListener('drag',         onDrag      , false)
+            el.addEventListener('dragend',      onDragEnd   , false)
+        }
+        function initDropzone(el) {
+            el.addEventListener('dragenter', onDragEnter    , {capture: true})
+            el.addEventListener('dragover',  onDragOver     , false)
+            el.addEventListener('dragleave', onDragLeave    , {capture: true, passive:true})
+            el.addEventListener('drop',      onDrop         , false)
+        }
+        function initEventHandlers(rootEl = document) {
+            const draggables = Array.from(rootEl.querySelectorAll('*[draggable]'))
+            draggables.forEach( initDraggable )
+
+            const dropzones = Array.from(rootEl.querySelectorAll('.group.dropzone'))
+            dropzones.forEach( initDropzone )
+        }
+        async function init() {
+            let response = await fetch('data.json')
+            if (response.ok) {
+                let data = await response.json()
+                populate(data)
+            }
+            initButtons()
+            initEventHandlers()
+            console.debug(
+                JSON.stringify(OrgToJSON(document.querySelector('main')))
+            )
+        }
+        document.addEventListener('DOMContentLoaded', init)
+    </script>
+</head>
+
+
+<body>
+    <h1>Unity of Fairfax Organizational Structure</h1>
+
+    <div id="controls">
+        <button id="newMinistry">🆕 Ministry</button>
+        <button id="newGroup">🆕 Group</button>
+        <button id="saveData">💾 Save</button>
+        <label>Load <input
+            id      ="readFile"
+            type    ="file"
+            accept  =".txt,.json,text/plain,application/json"
+            />
+        </label>
+    </div>
+
+    <main class="grid">
+
+        <div class="group dropzone top-level">
+            <div class="ministries">
+                <ul></ul>
+            </div>
+        </div>
+
+    </main>
+
+    <template id="group-template">
+        <dl class="group dropzone">
+            <dt draggable="true" class="dropzone"></dt>
+
+            <dd class="ministries dropzone">
+                <ul></ul>
+            </dd>
+
+            <dd class="subgroups dropzone"></dd>
+        </dl>
+    </template>
+</body>
+</html>

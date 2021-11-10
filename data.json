@@ -1,0 +1,74 @@
+[
+    [
+        "Bookstore",
+        "Comunidad Hispana",
+        "Engagement",
+        "Health & Safety Committee",
+        "Music [& Arts]",
+        "Mystical Movie Night",
+        "Sacred Service Council",
+        "Small Groups",
+        "Staff",
+        "Tables for Eight",
+        "UniSync",
+        "Youth & Family"
+    ],
+
+    {
+        "name": "Community Care",
+        "ministries": [
+            "Benevolence Committee",
+            "Helping Hands",
+            "Loving Hearts",
+            "New Members",
+            "Prayer Chaplains",
+            "Thought for the Day"
+        ]
+    },
+
+    {
+        "name": "Community Support",
+        "ministries": [
+            "Compassionate Community Service",
+            "EarthCare",
+            "Information Technology",
+            "Social Justice"
+        ],
+        "subgroups": [
+            {
+                "name": "Marketing",
+                "ministries": [
+                    "Core Team",
+                    "Professional Resources Group",
+                    "Website & Social Media"
+                ]
+            }
+        ]
+    },
+
+    {
+        "name": "Sunday Support",
+        "ministries": [
+            "Hospitality",
+            "Welcome–Worship"
+        ],
+        "subgroups": [
+            {
+                "name": "Audio Visual",
+                "ministries": [
+                    "LiveStream",
+                    "Sound",
+                    "Visual Projection"
+                ]
+            }
+        ]
+    },
+
+    {
+        "name": "Spiritual Practice",
+        "ministries": [
+            "Labyrinth",
+            "Retreat"
+        ]
+    }
+]

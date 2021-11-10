@@ -1,0 +1,51 @@
+/*-------------------------------------------------------
+ *  Drag & Drop styles
+ */
+
+@keyframes validDropzone {
+    0% {
+        border: 5px dashed orange
+    }
+
+    100% {
+        border: 5px dashed transparent
+    }
+}
+
+
+body.isValid {
+    background-color: #eee;
+}
+
+
+*[draggable="true"] {
+    cursor: grab;
+}
+
+.dragging {
+    transform:          scale(1.05);
+    transform-origin:   50% 0%;
+    opacity:            0.4;
+    box-shadow:         0 1em 1em -0.5em rgba(0,0,0, 0.85);
+    user-select:        none;
+}
+
+.dragging.ministry {
+    background-color: hsl(60, 100%, 98.6%);
+}
+
+.dropzone {
+    --transition-property-fallback: opacity, transform, background-color;
+
+    transition-property: var(
+        --transition-property,
+        var(--transition-property-fallback)
+    );
+    transition-duration: 0.125s;
+    transition-timing-function: ease-out;
+}
+
+.dropzone.isValid {
+    transform: scale(1.025);
+    animation: validDropzone 0.5s ease-in-out infinite alternate;
+}

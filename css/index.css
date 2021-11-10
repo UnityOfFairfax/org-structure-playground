@@ -1,0 +1,71 @@
+:root {
+    --transition-property:
+        margin, padding,
+        border,
+        color, background-color,
+        opacity, transform
+    ;
+}
+
+/* --------------------------------------------------------------- */
+/*  Box-sizing reset
+ *
+ *  Thanks to CSS tricks (again):
+ *
+ *  https://css-tricks.com/box-sizing/#universal-box-sizing-with-inheritance
+ */
+html                    { box-sizing: border-box    }
+*, *::before, *::after  { box-sizing: inherit       }
+/* --------------------------------------------------------------- */
+
+
+html, body {
+    font-family: Helvetica, Arial, sans-serif
+}
+
+button {
+    font-weight:            bold;
+    padding-block:          0;
+    padding-inline-start:   0;
+    padding-inline-end:     2ch;
+    line-height:            1.0;
+    font-size:              medium;
+}
+
+#controls {
+    margin:     0 auto 1em;
+    text-align: center;
+}
+
+button::first-letter {
+    font-size:x-large;
+    word-spacing: -1ch;
+}
+
+del {
+    opacity:                0.25;
+    text-decoration:        line-through;
+    text-decoration-color: red;
+}
+
+h1 {
+    text-align:center
+}
+
+dt {
+    font-weight:bold;
+}
+
+ul, dd {
+    margin:  0;
+    padding: 0;
+}
+
+.grid {
+    display:                grid;
+    grid-auto-flow:         dense;
+    /*  Flexible grid that adds columns as space grows */
+    grid-template-columns: repeat(auto-fit, minmax(25ch, 1fr));
+    column-gap:             1.5em;
+}
+
