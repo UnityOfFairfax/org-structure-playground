@@ -1,0 +1,43 @@
+.group {
+    padding:    0;
+    border:     1px solid black;
+    border-radius:  0.5ch 1em 1em;
+
+    box-shadow:     1ex 1ex 1ex -0.5ch rgba(0,0,0, 0.5);
+}
+
+.group.top-level {
+    margin-top:1em
+}
+
+.group dt {
+    padding:        0.5em;
+    max-width:      25ex;
+    border:         0 solid black;
+    border-width:   0 1px 1px 0;
+    border-bottom-right-radius: 1em;
+    transition-property:        var(--transition-property);
+    transition-timing-function: ease-out;
+}
+
+.group dt:hover {
+    background-color: #eee;
+    color:          darkred;
+}
+
+.group .ministries,
+.group .subgroups {
+    margin:         0;
+    padding:        0.5em 1ex;
+    border-radius:  inherit;
+}
+
+.group,
+.group .ministries,
+.group .ministries .ministry,
+.group .subgroups,
+.group .subgroups .group {
+    transition-property:        var(--transition-property);
+    transition-duration:        0.5s;
+    transition-timing-function: cubic-bezier(0.0, 1.0, 0.5, 1.0); /* a super-strong ease-out */
+}

@@ -1,0 +1,36 @@
+.ministry {
+    margin:  0.25em;
+    padding: 0.25em;
+
+    list-style-position:    inside;
+    list-style-type:        none;
+
+    /* hsl(60, 100%, 93.92%) = lightyellow */
+    background-color: hsl(60, 100%, 93.92%);
+
+    border:             1px solid darkred;
+    border-radius:      0.5ch;
+}
+
+.ministry.inactive {
+    filter: grayscale(1);
+    opacity: 0.75;
+}
+
+.ministry.inactive:hover {
+    filter:  none;
+    opacity: 1
+}
+
+.ministry[data-description]::before {
+    cursor:     help;
+    display:    block;
+    float:      right;
+    font-size:  x-small;
+    content:    "ℹ️";
+}
+
+.ministries .ministry.sort-target,
+.ministries .ministry.sort-target ~ .ministry {
+    transform: translateY(1.5em)
+}

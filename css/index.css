@@ -23,23 +23,72 @@ html, body {
     font-family: Helvetica, Arial, sans-serif
 }
 
+body > details {
+    margin:     0 auto;
+    max-width:  120ch;
+    border-radius:  1em;
+}
+body > details[open] {
+    box-shadow:     0 1em 1em rgba(0,0,0,0.5);
+}
+body > details > summary {
+    text-align:center;
+}
+body > details summary * {
+    display:    inline-block;
+    font-size:  large;
+    border-radius: 1em;
+}
+body > details article {
+    padding: 0 1em;
+}
+body > details article section {
+    padding: 0.125em 0.5em;
+    border-radius: 0.25em;
+}
+body > details article section:nth-child(odd) {
+    background-color: #eee;
+}
+body > details article ul {
+    list-style-position: inside;
+}
+body > details article p {
+    margin:     1.5;
+    line-height:1.67;
+}
+
 button {
     font-weight:            bold;
-    padding-block:          0;
-    padding-inline-start:   0;
-    padding-inline-end:     2ch;
+    padding-block:          0.25em;
+    padding-inline:         1ch 2ch;
     line-height:            1.0;
-    font-size:              medium;
 }
 
-#controls {
-    margin:     0 auto 1em;
-    text-align: center;
-}
-
-button::first-letter {
+/* button::first-letter {
     font-size:x-large;
     word-spacing: -1ch;
+} */
+
+.controls {
+    margin:     0 auto 1em;
+}
+
+body > header > * {
+    padding:        0.125em 1em;
+    border-radius:  0.5em;
+    transition: background-color;
+    transition-duration: 0.5s;
+}
+body > header > #deleted {
+    padding: 0.125em 3em;
+}
+body > header > *:hover {
+    background-color: #eee;
+}
+
+
+#deleted summary {
+    font-size: xx-large
 }
 
 del {
@@ -66,6 +115,16 @@ ul, dd {
     grid-auto-flow:         dense;
     /*  Flexible grid that adds columns as space grows */
     grid-template-columns: repeat(auto-fit, minmax(25ch, 1fr));
+
     column-gap:             1.5em;
 }
 
+.flex {
+    display:    flex;
+    flex-wrap:  wrap;
+    justify-content: space-around;
+}
+
+.flex > details {
+    flex-grow: 1fr
+}

@@ -4,11 +4,11 @@
 
 @keyframes validDropzone {
     0% {
-        border: 5px dashed orange
+        outline: 5px dashed orange
     }
 
     100% {
-        border: 5px dashed transparent
+        outline: 5px dashed transparent
     }
 }
 

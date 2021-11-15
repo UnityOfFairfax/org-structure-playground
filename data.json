@@ -1,74 +1,216 @@
-[
-    [
-        "Bookstore",
-        "Comunidad Hispana",
-        "Engagement",
-        "Health & Safety Committee",
-        "Music [& Arts]",
-        "Mystical Movie Night",
-        "Sacred Service Council",
-        "Small Groups",
-        "Staff",
-        "Tables for Eight",
-        "UniSync",
-        "Youth & Family"
+{
+    "ministries": [
+        {
+            "name": "Bookstore",
+            "description":"The Unity of Fairfax bookstore is a resource for congregants for Unity books and literature, as well as other New Thought/metaphysical books and gift items. An enjoyment of books and meeting people is desired. Once trained, volunteers are encouraged to sign up for 1–2 shifts per month on Sundays and/or special events.",
+            "tags": ["inward", "outward"]
+        },
+        {
+            "name": "Comunidad Hispana",
+            "description":"Unity es un sendero positivo para la vida espiritual y en el cual honramos todos los caminos hacia Dios.",
+            "tags": ["inward", "outward"]
+        },
+        {
+            "name": "Engagement",
+            "description":null,
+            "tags": ["inactive", "outward"]
+        },
+        {
+            "name": "Health & Safety Committee",
+            "description":"Members of this team come together with the goal to create a healthy and safe environment for our congregants and guests.",
+            "tags": ["inward"]
+        },
+        {
+            "name": "Music [& Arts]",
+            "description":"The Unity Chorus brings beautiful music to our Sunday services, holidays, and special events throughout the year. Choir practices are Thursday evenings from 7:30 to 9 p.m.",
+            "tags": ["inward", "outward"]
+        },
+        {
+            "name": "Mystical Movie Night",
+            "description":"Movie Nights are held on Fridays once a month to provide opportunities for meaningful fun. This team picks the movies, obtains licensing, prepares snacks, and coordinates the event.",
+            "tags": ["inactive", "inward", "outward"]
+        },
+        {
+            "name":"Sacred Service Council",
+            "description":null,
+            "tags": ["inward"]
+        },
+        {
+            "name": "Small Groups",
+            "description":"Our Small Groups Ministry enhances our church experience by providing connections, friendship, spiritual growth, support, and fun. The team organizes Study Groups and other groups, as well as provides facilitator training and support.",
+            "tags": ["inactive", "inward"]
+        },
+        {
+            "name": "Staff",
+            "description": null,
+            "tags": ["inward", "outward"]
+        },
+        {
+            "name": "Tables for Eight",
+            "description": "This ministry has developed many new friendships and a way for newer congregants to meet others in a relaxed way via informal dinners in members’ homes.",
+            "tags": ["inactive", "inward"]
+        },
+        {
+            "name":"UniSync",
+            "description":"This calendar scheduling team (Unity Synchronized) is made up of leaders from the board, staff, and education, spiritual practice, and service teams. They meet monthly to consider requests for events and coordinate, integrate, and facilitate planning.",
+            "tags": ["inward", "infrastructure"]
+        },
+        {
+            "name":"Youth & Family",
+            "description":"This ministry provides dynamic, supporting, caring environments where young people can explore their Christ-nature and express their full potential. The program supports children/youth from birth until high school graduation.",
+            "tags": ["inward", "education"]
+        }
     ],
 
-    {
-        "name": "Community Care",
-        "ministries": [
-            "Benevolence Committee",
-            "Helping Hands",
-            "Loving Hearts",
-            "New Members",
-            "Prayer Chaplains",
-            "Thought for the Day"
-        ]
-    },
+    "groups": [
+        {
+            "name": "Community Care",
+            "description": null,
+            "tags": [],
+            "ministries": [
+                {
+                    "name": "Benevolence Committee",
+                    "description": "The Benevolence Committee manages the Benevolence Fund.\n\nThe Benevolence Fund is an officially recognized and designated permanent fund available to provide support to congregants (voting members and regular attendees) of Unity of Fairfax who are struggling financially due to exceptional circumstances.",
+                    "tags": ["inward"]
+                },
+                {
+                    "name": "Helping Hands",
+                    "description": "Volunteers in the Helping Hands Ministry provide services to people who are sick, temporarily disabled or otherwise unable to take care of routine daily activities on their own. Services that our volunteers can provide include visits, meals, transportation or running errands.",
+                    "tags": ["inward"]
+                },
+                {
+                    "name": "Loving Hearts",
+                    "description": "Members of this ministry make a loving difference for our church family by providing spiritual and emotional support, by holding family members in prayer, and sending cards full of loving intentions.",
+                    "tags": ["inward"]
+                },
+                {
+                    "name": "New Members",
+                    "description": "Greet prospective new members and make them feel welcome to the Unity of Fairfax family.",
+                    "tags": ["inward"]
+                },
+                {
+                    "name": "Prayer Chaplains",
+                    "description": "Trained Prayer Chaplains are available to pray with you before and after services on Sundays. Prayer Chaplains also participate in special services throughout the year.",
+                    "tags": ["inward"]
+                },
+                {
+                    "name": "Thought for the Day",
+                    "description": null,
+                    "tags": ["inward", "outward"]
+                }
+            ]
+        },
 
-    {
-        "name": "Community Support",
-        "ministries": [
-            "Compassionate Community Service",
-            "EarthCare",
-            "Information Technology",
-            "Social Justice"
-        ],
-        "subgroups": [
+        {
+            "name": "Community Support",
+            "description": "This Ministry provides opportunities for our congregation to contribute to the well-being of others locally and globally. The Compassionate Community Service Team meets on the 4th Sunday each month, and coordinates a number of outreach projects throughout the year. We look forward to your participation with our team as we answer the call to assist those in need.",
+            "tags": [],
+            "ministries": [
+                {
+                    "name": "Compassionate Community Service",
+                    "description": "This Ministry provides opportunities for our congregation to contribute to the well-being of others locally and globally. The Compassionate Community Service Team meets on the 4th Sunday each month, and coordinates a number of outreach projects throughout the year. We look forward to your participation with our team as we answer the call to assist those in need.",
+                    "tags": ["outward"]
+                },
+                {
+                    "name": "EarthCare",
+                    "description": "The EarthCare Ministry creates, coordinates, and implements activities that increase our environmental awareness and spiritual connection with all life. The team typically meets on the 2nd Monday of each month, and hosts hospitality each 3rd Sunday after the 11 a.m. service. They also provide volunteer time on church grounds or other areas of the campus that need assistance.",
+                    "tags": ["inward", "outward"]
+                },
+                {
+                    "name": "Information Technology",
+                    "description": "Calling all techies! Are you an IT professional or just technically inclined? We need more technical types to be on call to help the office staff with computer issues. Some projects we’ve completed: installed a cellular repeater on the roof, re-wired the network closet, upgraded WiFi access, and built a special purpose computer for the Live Streaming team.",
+                    "tags": ["infrastructure", "inward"]
+                },
+                {
+                    "name": "Social Justice",
+                    "description": "Unity of Fairfax has a long history of participation in social justice activities. The Social Justice Team (SJT) is planning new activities and projects whenever members express an interest and include a willingness to volunteer in leadership roles.\n\nThe Social Justice Team conducts discussions during relevant Unity of Fairfax Friday movie nights, provides facts related to social justice topics in the monthly bulletin, and informs the Unity of Fairfax community of speakers on Social justice.",
+                    "tags": ["inward", "outward"]
+                }
+            ],
+            "groups": [
+                {
+                    "name": "Marketing",
+                    "description": "Coordinates and communicates our message both internally and to the community. Responsibilities include our website, Facebook, Twitter, and all brochures, ads, signage, and mailings.",
+                    "tags": ["inward", "outward"],
+                    "ministries": [
+                        {
+                            "name": "Core Team",
+                            "description": "The Core Team is an umbrella group that meets every other month. The leader and scribe roles rotate each meeting.",
+                            "tags": ["inward"]
+                        },
+                        {
+                            "name": "Professional Resources Group",
+                            "description": "Professional Resources Group members provide sacred service by assisting with short-term projects and may attend Core Team meetings.",
+                            "tags": ["inward"]
+                        },
+                        {
+                            "name": "Website & Social Media",
+                            "description": "The Website & Social Media Teams develop the Unity of Fairfax website and social media accounts.",
+                            "tags": ["inward", "outward"]
+                        }
+                    ]
+                }
+            ]
+        },
+
             {
-                "name": "Marketing",
-                "ministries": [
-                    "Core Team",
-                    "Professional Resources Group",
-                    "Website & Social Media"
-                ]
-            }
-        ]
-    },
+            "name": "Sunday Support",
+            "description": "Sunday Support Teams ensure a smooth running service week after week.",
+            "tags": ["inward"],
+            "ministries": [
+                {
+                    "name": "Hospitality",
+                    "description": "This team hosts the fellowship on Sunday morning after both services and provides coffee, tea, and refreshments. Occasionally this service is extended to support special meetings and events.",
+                    "tags": ["inward"]
+                },
+                {
+                    "name": "Welcome–Worship",
+                    "description": "Our Welcoming Team provides first-time guests with an authentic ongoing experience of caring, fellowship, and the beginnings of a transformed life. Our ushers greet everyone, hand out monthly bulletins and welcome packets, and collect the offering at both services. They spend time with newcomers to show them around, answer their questions, and make sure they feel welcome.",
+                    "tags": ["inward"]
+                }
+            ],
+            "groups": [
+                {
+                    "name": "Audio Visual",
+                    "description": "This team manages the sound board, PowerPoint presentations, and Live Streaming during Sunday services and special events. Volunteers can be trained in one or all sub-teams.",
+                    "tags": ["inward"],
+                    "ministries": [
+                        {
+                            "name": "LiveStream",
+                            "description": "Operates the live streaming console during the 11 a.m. service to provide live access to the service on our website over the internet.",
+                            "tags": ["inward", "outward"]
+                        },
+                        {
+                            "name": "Sound",
+                            "description": "Staffs the sound booth during Sunday services as well as all official Unity of Fairfax functions, and records each Sunday service on CD for sale in our Bookstore.",
+                            "tags": ["inward"]
+                        },
+                        {
+                            "name": "Visual Projection",
+                            "description": "Operates the computer and video projectors during Sunday services and special Unity of Fairfax events.",
+                            "tags": ["inward"]
+                        }
+                    ]
+                }
+            ]
+        },
 
-    {
-        "name": "Sunday Support",
-        "ministries": [
-            "Hospitality",
-            "Welcome–Worship"
-        ],
-        "subgroups": [
-            {
-                "name": "Audio Visual",
-                "ministries": [
-                    "LiveStream",
-                    "Sound",
-                    "Visual Projection"
-                ]
-            }
-        ]
-    },
-
-    {
-        "name": "Spiritual Practice",
-        "ministries": [
-            "Labyrinth",
-            "Retreat"
-        ]
-    }
-]
+        {
+            "name": "Spiritual Practice",
+            "description": "Supporting Unity’s mission to advance the movement of spiritual awakening and transformation through the presentation of and engagement in spiritual practice-focused events, workshops, speakers, gatherings, and experiences as part of the Spiritual Center for Education, Practice, and Service. Events and experiences will focus on practices with a contemplative essence that recognize our cross-generational connectedness while advancing individual growth. Spiritual Practice works in tandem with educational and service offerings.",
+            "tags": ["practice"],
+            "ministries": [
+                {
+                    "name": "Labyrinth",
+                    "description": null,
+                    "tags": ["inactive", "inward", "outward"]
+                },
+                {
+                    "name": "Retreat",
+                    "description": "Our Retreat Ministry creates and supports opportunities to “go apart for a while”, in inspirational settings beyond our campus. Retreats are offered at least two weekends a year. Ministry members’ service is Spirit directed and guided and delivers meaningful retreat experiences for participants.",
+                    "tags": ["inward"]
+                }
+            ]
+        }
+    ]
+}

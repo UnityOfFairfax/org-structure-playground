@@ -1,194 +1,474 @@
 <!doctype html>
+<!--
+    This project started as a sketch, and then grew into something I wanted to
+    be useful to my co-workers for re-designing our organizational structure.
+
+    In trying to get this to minimum useful state as quickly as possible, I’ve
+    written some (currently) pretty messy code.
+
+    Please don’t look!  ;-)
+-->
 <html lang="en-us">
 <head>
     <meta charset="utf-8" />
     <title>Unity of Fairfax Organizational Structure</title>
 
-    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <link rel="stylesheet" type="text/css" href="css/index.css"     />
     <link rel="stylesheet" type="text/css" href="css/drag-drop.css" />
-    <link rel="stylesheet" type="text/css" href="css/concepts.css" />
+    <link rel="stylesheet" type="text/css" href="css/concepts.css"  />
 
-    <script async defer
-        title   ="Function Defs"
-        type    ="application/javascript"
-        src     ="dragdrop.js"
-    ></script>
+    <script title="Initialization" type="module">
+        import {
+            onDragStart,
+            onDrag,
+            onDragEnd,
 
-    <script defer
-        title   ="Storage (JSON utilities)"
-        type    ="application/javascript"
-        src     ="storage.js"
-    ></script>
+            onDragEnter,
+            onDragOver,
+            onDragLeave,
+            onDrop
+        } from './js/dragdrop.js';
 
-    <script defer title="Initialization">
-        function resetData() {
+        import {
+            ministriesToJson,
+            groupToJson,
+            OrgToJSON
+        } from './js/storage.js';
+
+        //  Updates the `.inactive` CSS class when the tag is added or removed
+        const onMutation = (mutations, obs) => {
+            console.debug('onMutation', mutations, obs)
+
+            let mutatations = mutations.filter( mutation => mutation.type === 'childList')
+
+            for (const mutation of mutations) {
+                let addedNodes   = [ ...mutation.addedNodes ]
+                let removedNodes = [ ...mutation.removedNodes ]
+
+                if (addedNodes.length) {
+                    for (const node of addedNodes) {
+                        if (node.textContent == 'inactive') {
+                            let tagParent = mutation.target.closest('.ministry, .group')
+                            tagParent.classList.add('inactive')
+                        }
+                    }
+                }
+
+                if (removedNodes.length) {
+                    for (const node of removedNodes) {
+                        if (node.textContent == 'inactive')     {
+                            let tagParent = mutation.target.closest('.ministry, .group')
+                            tagParent.classList.remove('inactive')
+                        }
+                    }
+                }
+            }
+        }
+
+        const mutationConfig = {
+            childList: true
+        }
+        const mutationObserver = new MutationObserver(onMutation)
+
+        function clearData(showConfirmation = false) {
+            console.debug('clearData()')
+            if (showConfirmation) {
+                const confirmationToClear = window.confirm('Clear everything?')
+                if (!confirmationToClear) {
+                    return false
+                }
+            }
+
             const main = document.querySelector('main')
-            main.querySelectorAll('.group:not(.top-level)').forEach( el => el.remove() )
-            main.querySelectorAll('.group.top-level .ministries li').forEach( el => el.remove() )
-        }
-        const buttons = {
-            prompt(promptText = 'Got a name?') {
-                return window.prompt(promptText)
-            },
-
-            newMinistry() {
-                const name = this.prompt()
-                if (!name) { return }
-
-                const ministry = document.createElement('li')
-                ministry.classList.add('ministry')
-                ministry.setAttribute('draggable', true)
-                ministry.append(
-                    document.createTextNode(name)
-                )
-                const topLevelMinistries = document.querySelector('main .ministries ul')
-                topLevelMinistries.append(ministry)
-                initDraggable(ministry)
-            },
-
-            newGroup() {
-                const name = this.prompt()
-                if (!name) { return }
-
-                const group = createGroup()
-                const groupTitle = group.querySelector('dt')
-                groupTitle.append(
-                    document.createTextNode(name)
-                )
-                document.querySelector('main').append(group)
-                initDraggable(groupTitle)
-                initDropzone(group)
-            },
-
-            saveData() {
-                const a     = document.createElement('a')
-                const data  = JSON.stringify(
-                    OrgToJSON(document.querySelector('main')),
-                    null,
-                    4
-                )
-                const blob  = new Blob([data], { type: 'application/json' })
-                a.href      = URL.createObjectURL(blob)
-                a.download  = `UOF-org-data-${new Date().toISOString()}.json`
-                a.click()
-            },
-
-            readFile() {
-
-            },
-
-            loadData() {
-
-            }
-        
-        }
-        function initButtons() {
-            [
-                'newMinistry',
-                'newGroup',
-                'saveData'
-            ].forEach( id => {
-                const button = document.getElementById(id)
-                button.addEventListener('click', (evt) => {
-                    buttons[id]()
-                })
+            main.querySelectorAll('.group:not(.top-level)').forEach( el => {
+                deinitGroup(el)
+                el.remove()
             })
+
+            const topLevelDraggables = main.querySelectorAll('.group.top-level .ministries ul *[draggable]')
+            topLevelDraggables.forEach( el => deinitDraggable(el) )
+
+            const topLvlDropzones  = main.querySelectorAll('.group.top-level .ministries ul .dropzone')
+            topLvlDropzones.forEach( el => deinitDropzone(el) )
+
+            main.querySelectorAll('.group.top-level .ministries ul .ministry')
+                .forEach( el => el.remove() )
+        }
+        async function resetData(showConfirmation = false) {
+            if (showConfirmation) {
+                const confirmationToReset = window.confirm('Load default data? (Warning: This will clear existing data first!)')
+                if (!confirmationToReset) {
+                    return false
+                }
+            }
+
+            clearData()
+            //  clearData() leaves `top-level` alone
+            document.querySelector('.group.top-level').remove()
+
+            await populateDefault()
+
+            document.querySelectorAll('main .group')
+                .forEach( group => initGroup(group) )
+        }
+
+        function promptForName(promptText = 'Got a name?') {
+            return window.prompt(promptText)
+        }
+        function newMinistry(evt) {
+            const name = promptForName()
+            if (!name) { return }
+
+            const ministry = document.createElement('li')
+            ministry.classList.add('ministry')
+            ministry.setAttribute('draggable', true)
+
+            const nameSpan = document.createElement('span')
+            nameSpan.classList.add('name')
+            nameSpan.append(
+                document.createTextNode(name)  // handles entity escapes
+            )
+
+            ministry.append(nameSpan)
+
+            const tagList = document.createElement('ul')
+            tagList.classList.add('tags')
+            ministry.append(tagList)
+
+            const closestGroup = evt.target.closest('.group')
+            const ministryList = closestGroup.querySelector('.ministries ul')
+            ministryList.append(ministry)
+            initDraggable(ministry)
+        }
+        function newGroup(evt) {
+            const name = promptForName()
+            if (!name) { return }
+
+            const group = createGroup()
+
+            const groupTitle = group.querySelector('dt .name')
+            // const tagsEl    = groupTitle.querySelector('.tags')
+
+            groupTitle.append(
+                document.createTextNode(name)
+            )
+
+            const closestGroup = evt.target.closest('.group')
+
+            if (closestGroup.classList.contains('top-level')) {
+                document.querySelector('main').append(group)
+            }
+            else {
+                const closestSubgroupEl = closestGroup?.querySelector('.subgroups')
+                const button = closestSubgroupEl.querySelector('button')
+                closestSubgroupEl.insertBefore(group, button)
+            }
+
+            initGroup(group)
+        }
+
+        async function onFileUpload(evt) {
+            const inputEl   = evt.target
+            const fileList  = inputEl.files
+            const file      = fileList[0]
+
+            console.debug('file', file)
+            let txt = await file.text()
+
+            let data = JSON.parse(txt)
+            clearData()
+            populate(data)
+
+            document.querySelectorAll('main .group')
+                .forEach( group => initGroup(group) )
+        }
+
+        function initSaveButton() {
+            const saveButton = document.getElementById('saveData')
+            saveButton.addEventListener('click', () => {
+
+                let data = OrgToJSON(document.querySelector('main'))
+                data = JSON.stringify(data)
+
+                const blob = new Blob( [data], {type: 'application/json'})
+                const url  = URL.createObjectURL(blob)
+
+                const date = new Date()
+                const filename  = `unity-of-fairfax-org-structure - ${date.toISOString()}.json`
+
+                const anchor    = document.createElement('a')
+                anchor.setAttribute('download', filename)
+                anchor.setAttribute('href', url)
+
+                anchor.click()
+            })
+        }
+        function initLoadButton() {
             const loadButton = document.getElementById('readFile')
-            
-            loadButton.addEventListener('change', async function(evt) {
-                const inputEl = evt.target
-                const fileList = inputEl.files
-                // try {
-                    const fileText = await fileList[0].text()
-                    // console.debug(fileText)
-                    const data = JSON.parse(fileText)
-                    resetData()
-                    populate(data)
-                // }
-            }, false)
+            loadButton.addEventListener('change', onFileUpload, false)
         }
-        /**
-         *  Clones and returns the `<template>` for a blank group.
-         *  @returns {HTMLDListElement}
-         */
-        function createGroup(id = 'group-template') {
-            const tpl = document.getElementById(id)
-            const group = tpl.content.firstElementChild.cloneNode(true)
-
-            const draggables = Array.from(group.querySelectorAll('*[draggable]'))
-            draggables.forEach(initDraggable)
-
-            const dropzones = Array.from(group.querySelectorAll('.dropzone'))
-            dropzones.forEach(initDropzone)
-            return group
+        function initClearButton() {
+            const button = document.getElementById('clearData')
+            button.addEventListener('click', (evt) => { clearData(true) })
         }
-        function populateMinistryList(ul, ministries) {
-            for (let m of ministries) {
-                const li = document.createElement('li')
-                li.classList.add('ministry')
-                li.setAttribute('draggable', 'true')
-                li.append(
-                    document.createTextNode(m)  // handles entity escapes
-                )
-                ul.append(li)
-            }
+        function initResetButton() {
+            const button = document.getElementById('resetData')
+            button.addEventListener('click', (evt) => { resetData(true) })
         }
-        function populate(data, groupEl = document.querySelector('main')) {
-            for (let obj of data) {
 
-                //  Special case: Ministries not in any group
-                if (obj instanceof Array) {
-                    const ul = groupEl.querySelector('.group.top-level .ministries ul')
-                    populateMinistryList(ul, obj)
-                    continue
-                }
-
-                const g = createGroup()
-                const dt = g.querySelector('dt')
-                dt.append(
-                    document.createTextNode(obj.name)
-                )
-                if (obj.ministries) {
-                    const ministries = g.querySelector('.ministries')
-                    const ul = ministries.querySelector('ul')
-                    populateMinistryList(ul, obj.ministries)
-                }
-                if (obj.subgroups) {
-                    const subgroupsContainer = g.querySelector('.subgroups')
-                    populate(obj.subgroups, subgroupsContainer)
-                }
-                groupEl.append(g)
-            }
-        }
         function initDraggable(el) {
             el.addEventListener('dragstart',    onDragStart , false)
             el.addEventListener('drag',         onDrag      , false)
             el.addEventListener('dragend',      onDragEnd   , false)
         }
         function initDropzone(el) {
-            el.addEventListener('dragenter', onDragEnter    , {capture: true})
+            el.addEventListener('dragenter', onDragEnter    , {capture: false})
             el.addEventListener('dragover',  onDragOver     , false)
-            el.addEventListener('dragleave', onDragLeave    , {capture: true, passive:true})
+            el.addEventListener('dragleave', onDragLeave    , {capture: false, passive:true})
             el.addEventListener('drop',      onDrop         , false)
         }
-        function initEventHandlers(rootEl = document) {
-            const draggables = Array.from(rootEl.querySelectorAll('*[draggable]'))
+        function initGroupButtons(groupEl) {
+            const newMinistryButton = groupEl.querySelector('.new-ministry')
+            newMinistryButton.addEventListener('click', newMinistry)
+
+            const newGroupButton    = groupEl.querySelector('.new-group')
+            newGroupButton.addEventListener('click', newGroup)
+        }
+        function initGroup(groupEl) {
+            const draggables = Array.from(groupEl.querySelectorAll('*[draggable]'))
             draggables.forEach( initDraggable )
 
-            const dropzones = Array.from(rootEl.querySelectorAll('.group.dropzone'))
+            const dropzones = Array.from(groupEl.querySelectorAll('.dropzone'))
             dropzones.forEach( initDropzone )
+
+            initGroupButtons(groupEl)
+            groupEl.querySelectorAll('.tags').forEach( tagsList => {
+                mutationObserver.observe(tagsList, mutationConfig)
+            })
         }
-        async function init() {
+
+        function deinitDraggable(el) {
+            el.removeEventListener('dragstart',    onDragStart , false)
+            el.removeEventListener('drag',         onDrag      , false)
+            el.removeEventListener('dragend',      onDragEnd   , false)
+        }
+        function deinitDropzone(el) {
+            el.removeEventListener('dragenter', onDragEnter    , {capture: false})
+            el.removeEventListener('dragover',  onDragOver     , false)
+            el.removeEventListener('dragleave', onDragLeave    , {capture: false, passive:true})
+            el.removeEventListener('drop',      onDrop         , false)
+        }
+        function deinitGroupButtons(groupEl) {
+            const newMinistryButton = groupEl.querySelector('.new-ministry')
+            newMinistryButton.removeEventListener('click', newMinistry)
+
+            const newGroupButton    = groupEl.querySelector('.new-group')
+            newGroupButton.removeEventListener('click', newGroup)
+        }
+        function deinitGroup(groupEl) {
+            const draggables = Array.from(groupEl.querySelectorAll('*[draggable]'))
+            draggables.forEach( deinitDraggable )
+
+            const dropzones = Array.from(groupEl.querySelectorAll('.dropzone'))
+            dropzones.forEach( deinitDropzone )
+
+            deinitGroupButtons(groupEl)
+
+            //  mutationObserver can be left alone
+            //  (garbage collection will clean up removed elements)
+        }
+
+        /**
+         *  Clones and returns the `<template>` for a blank group.
+         *  No event listeners are attached.
+         *  @returns {HTMLDListElement}
+         */
+        function createGroup(id = 'group-template') {
+            const tpl   = document.getElementById(id)
+            const group = tpl.content.firstElementChild.cloneNode(true)
+            return group
+        }
+
+        function populateTagList(listEl, tags) {
+            for (const tag of tags) {
+                const tagLi = document.createElement('li')
+                tagLi.textContent = tag
+
+                switch (tag) {
+                    case 'inward':
+                        tagLi.classList.add('red')
+                        break
+                    case 'outward':
+                        tagLi.classList.add('blue')
+                        break
+
+                    case 'education':
+                        tagLi.classList.add('yellow')
+                        break
+                    case 'practice':
+                        tagLi.classList.add('green')
+                        break
+                    case 'service':
+                        tagLi.classList.add('violet')
+                        break
+
+                    case 'infrastructure':
+                        tagLi.classList.add('black')
+                        break
+
+                    default:
+                        break
+                }
+                listEl.append(tagLi)
+            }
+        }
+
+        function populateMinistryList(listEl, ministries) {
+            for (let m of ministries) {
+                const li = document.createElement('li')
+                li.classList.add('ministry', 'dropzone')
+                li.setAttribute('draggable', 'true')
+
+                const nameSpan = document.createElement('span')
+                nameSpan.classList.add('name')
+                nameSpan.append(
+                    document.createTextNode(m.name)  // handles entity escapes
+                )
+                li.append(
+                    nameSpan
+                )
+
+                if (m.description) {
+                    li.dataset.description = m.description
+                    li.setAttribute('title', m.description)
+                }
+                if (m.tags?.length) {
+                    const tagsUl = document.createElement('ul')
+                    tagsUl.classList.add('tags')
+                    populateTagList(tagsUl, m.tags)
+                    //  Special case:
+                    //  tags that affect the containing ministry
+                    if (m.tags.includes('inactive')) {
+                        li.classList.add('inactive')
+                    }
+                    li.append(tagsUl)
+                }
+                listEl.append(li)
+            }
+        }
+
+        function populateGroup(groupEl, { name, description, tags, ministries, groups } = {}) {
+            if (name) {
+                const dt = groupEl.querySelector('dt')
+                const nameSpan = dt.querySelector('.name')
+                nameSpan.append(
+                    document.createTextNode(name)  // handles entity escapes
+                )
+
+                if (description) {
+                    dt.dataset.description = description
+                }
+
+                if (tags?.length) {
+                    const tagsUl = dt.querySelector('.tags')
+                    populateTagList(tagsUl, tags)
+                }
+            }
+
+            if (ministries) {
+                const ministriesEl = groupEl.querySelector('.ministries')
+                const ul = ministriesEl.querySelector('ul')
+                populateMinistryList(ul, ministries)
+            }
+            if (groups) {
+                const subgroupsContainer = groupEl.querySelector('.subgroups')
+                for (const subGroup of groups) {
+                    const subGroupEl = createGroup()
+                    populateGroup(subGroupEl, subGroup)
+                    subgroupsContainer.append(subGroupEl)
+                }
+                //  Keep `+ Group` button last
+                const button = subgroupsContainer.querySelector('button')
+                subgroupsContainer.append(button)
+            }
+        }
+
+        function populate(data) {
+            console.debug('populate() data:', data)
+
+            const mainEl = document.querySelector('main')
+
+            if (!mainEl.querySelector('.group.top-level')) {
+                let topLevelGroup = createGroup('top-level-group-template')
+                mainEl.append(topLevelGroup)
+            }
+
+            for (let [key, val] of Object.entries(data)) {
+                switch (key) {
+                    //  Special case:
+                    //  Ministries not in any group
+                    case 'ministries':
+                        const ul = document.querySelector('.group.top-level .ministries ul')
+                        populateMinistryList(ul, val)
+                        break
+
+                    case 'groups':
+                        for (let groupObj of val) {
+                            const groupEl = createGroup()
+                            populateGroup(groupEl, groupObj)
+                            mainEl.append(groupEl)
+                        }
+                        break
+
+                    default:
+                        console.warn('wtf...?', {key, val})
+                        break
+                }
+            }
+        }
+
+        function initHeader() {
+            //  master tags
+            const masterTags = document.querySelectorAll('#master-tags ul > li')
+            for (const tag of masterTags) {
+                initDraggable(tag)
+            }
+
+            //  trash can
+            initDropzone(
+                document.getElementById('deleted')
+            )
+
+            initSaveButton()
+            initLoadButton()
+            initClearButton()
+            initResetButton()
+        }
+
+        async function populateDefault() {
             let response = await fetch('data.json')
             if (response.ok) {
                 let data = await response.json()
                 populate(data)
             }
-            initButtons()
-            initEventHandlers()
-            console.debug(
-                JSON.stringify(OrgToJSON(document.querySelector('main')))
-            )
+        }
+
+        async function init() {
+            initHeader()
+            await populateDefault()
+
+            //  groups
+            document.querySelectorAll('main .group')
+                .forEach( group => initGroup(group) )
+
+            let json = JSON.stringify(
+                        OrgToJSON(document.querySelector('main')),
+                        null,
+                        4
+                    )
+            console.log(json.length)
+            // console.log('btoa() length:', btoa(json).length)
+
         }
         document.addEventListener('DOMContentLoaded', init)
     </script>
@@ -198,37 +478,159 @@
 <body>
     <h1>Unity of Fairfax Organizational Structure</h1>
 
-    <div id="controls">
-        <button id="newMinistry">🆕 Ministry</button>
-        <button id="newGroup">🆕 Group</button>
-        <button id="saveData">💾 Save</button>
-        <label>Load <input
-            id      ="readFile"
-            type    ="file"
-            accept  =".txt,.json,text/plain,application/json"
-            />
-        </label>
-    </div>
+    <details>
+        <summary><h2>A maybe-helpful note... 📝</h2></summary>
 
-    <main class="grid">
+        <article class="grid">
 
-        <div class="group dropzone top-level">
-            <div class="ministries">
-                <ul></ul>
-            </div>
+            <section>
+                <h3>Disclaimer</h3>
+
+                <p>
+                    <strong>This started out as a learning project.</strong>
+                    I know this “app” is still pretty rough.
+                    While I am totally comfortable creating and maintaining web<em>sites</em>, a web <em>“app”</em> (the boundary between the two is a fuzzy one) is something I have toyed with in the past, but am far less experienced with.
+                </p>
+
+                <p>This was my attempt to learn how to program drag-and-drop functionality (beyond a simple one-off).</p>
+
+                <p> If I waited until I made this as perfect as I would like it to be, it might be a long time.
+                    So, in the interest of helping us come up with a bunch of reorganization ideas, I did just enough to get this to “usable” (or so I hope!).
+                </p>
+                <p> That means you might (and probably will) enounter bugs.  Sorry!</p>
+            </section>
+
+            <section>
+                <h3>The Basics</h3>
+
+                <ul>
+                    <li><p>Most of this works with drag-and-drop.</p></li>
+                    <li><p>To make a ministry or group “top-level”, drag it to the ← leftmost group (the one without a name).</p></li>
+                    <li><p>Every time you load this page, it begins from scratch!</p></li>
+                    <li>
+                        <p>
+                            If you come up with something you want to show the rest of us (or continue working on later), hit <b>Save</b>.
+                            It will download a file ending with <code><var>*</var>.json</code>.
+                        </p>
+                    </li>
+                    <li><p>You can use the <b>Load</b> button to restore a saved file.</p></li>
+                    <li><p>The <b>Clear</b> button removes all groups and ministries, leaving you with a blank organization.</p></li>
+                    <li><p>The <b>Reset</b> button loads the default Organizational Structure again.  (Or, you can just hit Refresh. :-)</p></li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Descriptions (ℹ️)</h3>
+                <ul>
+
+                    <li>
+                        <p>Ministries with a description are indicated by the ℹ️ icon.</p>
+                    </li>
+                    <li>
+                        <p>Hover your mouse over a ministry to see its description as a tooltip.  (I know…it’s lame. But it’s the fastest way I could make descriptions readable.)</p>
+                    </li>
+                    <li>
+                        <p>You can’t create or edit descriptions. (Sorry.)</p>
+                    </li>
+                    <li>
+                        <p>Descriptions were taken from a combination of the Unity of Fairfax brochure and the website.</p>
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Tags</h3>
+
+                <ul>
+                    <li><p>Tags can only be dragged from the top.</p></li>
+                    <li><p>Drop a tag onto something to add/remove it.</p></li>
+                    <li><p>You can’t create or edit descriptions. (OMG, srsly?! 🙄)</p></li>
+                </ul>
+            </section>
+
+        </article>
+        <button
+            style   ="margin:1em auto 3em; padding:1em; width: 90%; display: block; filter:invert()"
+            onclick ="document.querySelector('details').removeAttribute('open')"
+        >✖︎ Close note</button>
+    </details>
+
+    <header class="flex">
+        <div id="controls">
+            <h2>Save <small>/</small> Load</h2>
+
+            <button id="saveData">💾 Save</button>
+            <label>Load <input
+                id      ="readFile"
+                type    ="file"
+                accept  =".txt,.json,text/plain,application/json"
+                placeholder="blah"
+                />
+            </label>
+
+            <button id="clearData" title="Clear all ministries and groups. Start totally blank.">Clear</button>
+            <button id="resetData" title="Clear everything and reload the default data.">Reset</button>
         </div>
 
-    </main>
+        <div id="master-tags">
+            <h2>Tags</h2>
+
+            <ul class="tags dropzone">
+                <li draggable="true" class="red">inward</li>
+                <li draggable="true" class="blue">outward</li>
+
+                <li draggable="true">inactive</li>
+
+                <li draggable="true" class="yellow" >education</li>
+                <li draggable="true" class="green">practice</li>
+                <li draggable="true" class="violet">service</li>
+
+                <li draggable="true" class="black">infrastructure</li>
+            </ul>
+        </div>
+
+        <div id="deleted" class="dropzone">
+            <h2>Deleted</h2>
+
+            <details class="dropzone">
+                <summary title="Deleted Items">🗑️</summary>
+                <ul class="dropzone"></ul>
+            </details>
+        </div>
+    </header>
+
+
+    <main class="grid"></main>
+
+
+    <template id="top-level-group-template">
+        <div class="group dropzone top-level">
+            <div class="ministries dropzone">
+                <ul></ul>
+                <button class="new-ministry">✚ Ministry</button>
+            </div>
+
+            <div class="controls dropzone">
+                <button class="new-group">✚ Group</button>
+            </div>
+        </div>
+    </template>
 
     <template id="group-template">
         <dl class="group dropzone">
-            <dt draggable="true" class="dropzone"></dt>
+            <dt draggable="true" class="dropzone">
+                <span class="name"></span>
+                <ul class="tags"></ul>
+            </dt>
 
             <dd class="ministries dropzone">
                 <ul></ul>
+                <button class="new-ministry">✚ Ministry</button>
             </dd>
 
-            <dd class="subgroups dropzone"></dd>
+            <dd class="subgroups dropzone">
+                <button class="new-group">✚ Group</button>
+            </dd>
         </dl>
     </template>
 </body>

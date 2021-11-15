@@ -1,51 +1,61 @@
-.group {
-    padding:    0;
-    border:     1px solid black;
-    border-radius:  0.5ch 1em 1em;
+@import "groups.css";
+@import "ministries.css";
 
-    box-shadow:     1ex 1ex 1ex -0.5ch rgba(0,0,0, 0.5);
+
+@keyframes hoveringText {}
+
+main .name,
+main .tags {
+    pointer-events: none;
 }
 
-.group dt {
-    padding:        0.5em;
-    max-width:      25ex;
-    border:         0 solid black;
-    border-width:   0 1px 1px 0;
-    border-bottom-right-radius: 1em;
+.tags {
+    font-size: x-small;
 }
 
-.group .ministries,
-.group .subgroups {
-    margin:         0;
-    padding:        1.5em 1ex;
-    min-height:     1em;
-    border-radius:  inherit;
+.tags li {
+    display:        inline-block;
+    background:     #eee;
+    padding:        1px 0.5ch;
+    border-radius:  0.25em
 }
 
-.group,
-.group .ministries,
-.group .ministries .ministry,
-.group .subgroups,
-.group .subgroups .group {
-    transition-property:        var(--transition-property);
-    transition-duration:        0.5s;
-    transition-timing-function: cubic-bezier(0.0, 1.0, 0.5, 1.0); /* a super-strong ease-out */
+.tags li.red        {background-color: hsl(  0, 75%, 90%)}
+.tags li.orange     {background-color: hsl( 30, 75%, 90%)}
+.tags li.yellow     {background-color: hsl( 60, 75%, 90%)}
+.tags li.green      {background-color: hsl(120, 75%, 90%)}
+.tags li.blue       {background-color: hsl(180, 75%, 90%)}
+.tags li.violet     {background-color: hsl(330, 75%, 90%)}
+.tags li.black      {background-color: hsl(  0,  0%, 50%); color: #fff}
+
+dt .tags {
+    font-weight: normal
 }
 
-.ministry {
-    margin:  0.25em;
-    padding: 0.25em ;
-
-    list-style-position: inside;
-    list-style-type:    none;
-    /* hsl(60, 100%, 93.92%) = lightyellow */
-    background-color: hsl(60, 100%, 93.92%);
-
-    border:             1px solid darkred;
-    border-radius:      0.5ch;
+.group .tags {
+    font-size: xx-small;
+}
+.ministries .tags > li {
+    margin-right: 0.5ch;
 }
 
-.ministries .ministry.sort-target,
-.ministries .ministry.sort-target ~ .ministry {
-    transform: translateY(1.5em)
+/* .ministries .tags > li {
+    white-space: nowrap;
+    overflow:    hidden;
+    max-width:      5ch;
+    text-overflow: clip;
+}
+
+.group:hover .ministries .tags > li {
+    white-space: normal;
+    overflow:    visible;
+    max-width:      none;
+    text-overflow:  none;
+} */
+
+
+button.new-group,
+button.new-ministry {
+    display:        block;
+    margin-left:    auto
 }
