@@ -446,7 +446,7 @@
         }
 
         async function populateDefault() {
-            let response = await fetch('data.json')
+            let response = await fetch('./data.json')
             if (response.ok) {
                 let data = await response.json()
                 populate(data)
