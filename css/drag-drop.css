@@ -35,7 +35,11 @@ body.isValid {
 }
 
 .dropzone {
-    --transition-property-fallback: opacity, transform, background-color;
+    --transition-property-fallback:
+        opacity, 
+        transform, 
+        background-color
+    ;
 
     transition-property: var(
         --transition-property,

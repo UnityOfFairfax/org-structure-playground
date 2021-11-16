@@ -49,11 +49,16 @@ body > details article section {
 body > details article section:nth-child(odd) {
     background-color: #eee;
 }
-body > details article ul {
+
+/* body > details article ul {
     list-style-position: inside;
+} */
+body > details article ul li {
+    position:   relative;
+    left:       1.2ch;
 }
 body > details article p {
-    margin:     1.5;
+    margin:     1.5em 1.2ch 1.5em 0;
     line-height:1.67;
 }
 
@@ -76,8 +81,9 @@ button {
 body > header > * {
     padding:        0.125em 1em;
     border-radius:  0.5em;
-    transition: background-color;
-    transition-duration: 0.5s;
+    
+    transition:             background-color;
+    transition-duration:    0.5s;
 }
 body > header > #deleted {
     padding: 0.125em 3em;

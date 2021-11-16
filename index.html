@@ -32,11 +32,13 @@
         import {
             ministriesToJson,
             groupToJson,
-            OrgToJSON
+            OrgToJSON,
+            loadFromLocalStorage,
+            saveToLocalStorage
         } from './js/storage.js';
 
         //  Updates the `.inactive` CSS class when the tag is added or removed
-        const onMutation = (mutations, obs) => {
+        const onTagMutation = (mutations, obs) => {
             console.debug('onMutation', mutations, obs)
 
             let mutatations = mutations.filter( mutation => mutation.type === 'childList')
@@ -64,11 +66,10 @@
                 }
             }
         }
-
-        const mutationConfig = {
+        const tagMutationConfig = {
             childList: true
         }
-        const mutationObserver = new MutationObserver(onMutation)
+        const tagMutationObserver = new MutationObserver(onTagMutation)
 
         function clearData(showConfirmation = false) {
             console.debug('clearData()')
@@ -243,7 +244,7 @@
 
             initGroupButtons(groupEl)
             groupEl.querySelectorAll('.tags').forEach( tagsList => {
-                mutationObserver.observe(tagsList, mutationConfig)
+                tagMutationObserver.observe(tagsList, tagMutationConfig)
             })
         }
 
@@ -340,7 +341,7 @@
 
                 if (m.description) {
                     li.dataset.description = m.description
-                    li.setAttribute('title', m.description)
+                    // li.setAttribute('title', m.description)
                 }
                 if (m.tags?.length) {
                     const tagsUl = document.createElement('ul')
@@ -455,11 +456,38 @@
 
         async function init() {
             initHeader()
-            await populateDefault()
+            /*
+             *  If there’s saved data in localStorage, load it up.
+             */
+            const savedData = loadFromLocalStorage()
+            if (savedData) {
+                populate(savedData)
+            }
+            else {
+                await populateDefault()
+            }
 
             //  groups
             document.querySelectorAll('main .group')
                 .forEach( group => initGroup(group) )
+
+            /*
+             *  Keep data synced in localStorage
+             */
+            const onDataMutation = (mutations, obs) => {
+                console.debug('onDataMutation()')
+                saveToLocalStorage()
+            }
+            const dataMutationConfig = {
+                subtree:    true,
+                childList:  true
+            }
+            const dataMutationObserver = new MutationObserver(onDataMutation)
+            dataMutationObserver.observe(
+                document.querySelector('main'),
+                dataMutationConfig
+            )
+
 
             let json = JSON.stringify(
                         OrgToJSON(document.querySelector('main')),
@@ -506,7 +534,12 @@
                 <ul>
                     <li><p>Most of this works with drag-and-drop.</p></li>
                     <li><p>To make a ministry or group “top-level”, drag it to the ← leftmost group (the one without a name).</p></li>
-                    <li><p>Every time you load this page, it begins from scratch!</p></li>
+                    <li>
+                        <p>
+                            <del>Every time you load this page, it begins from scratch!</del>
+                            <ins>This page will automatically remember your changes <em>on the local computer only</em>.</ins>
+                        </p>
+                    </li>
                     <li>
                         <p>
                             If you come up with something you want to show the rest of us (or continue working on later), hit <b>Save</b>.
@@ -523,18 +556,10 @@
                 <h3>Descriptions (ℹ️)</h3>
                 <ul>
 
-                    <li>
-                        <p>Ministries with a description are indicated by the ℹ️ icon.</p>
-                    </li>
-                    <li>
-                        <p>Hover your mouse over a ministry to see its description as a tooltip.  (I know…it’s lame. But it’s the fastest way I could make descriptions readable.)</p>
-                    </li>
-                    <li>
-                        <p>You can’t create or edit descriptions. (Sorry.)</p>
-                    </li>
-                    <li>
-                        <p>Descriptions were taken from a combination of the Unity of Fairfax brochure and the website.</p>
-                    </li>
+                    <li><p>Ministries with a description are indicated by the ℹ️ icon.</p></li>
+                    <li><p>Hover your mouse over anything with the ℹ️ icon to see its description as a tooltip.</p></li>
+                    <li><p>You can’t create or edit descriptions. (Sorry.)</p></li>
+                    <li><p>Descriptions were taken from a combination of the Unity of Fairfax brochure and the website.</p></li>
                 </ul>
             </section>
 

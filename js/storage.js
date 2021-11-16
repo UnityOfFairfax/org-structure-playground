@@ -20,12 +20,15 @@ export const ministriesToJson = (ministriesEl) => {
 }
 
 export const groupToJson = (groupEl) => {
+    const groupTitle = groupEl.querySelector('dt')
+    const groupTags = [
+        ...groupTitle.querySelectorAll('.tags > li')
+    ]
+
     const group = {
-        name:           groupEl.querySelector('dt .name').textContent,
-        description:    groupEl.dataset?.description,
-        tags:       Array.from(
-                        groupEl.querySelectorAll('dt > .tags > li')
-                    ).map( el => el.textContent )
+        name:           groupTitle.querySelector('dt .name').textContent,
+        description:    groupTitle.dataset?.description,
+        tags:           groupTags.map( el => el.textContent )
     }
 
     if ([ ...groupEl.querySelectorAll('.ministries li') ].length) {
@@ -65,8 +68,32 @@ export const OrgToJSON = (root) => {
     return result
 }
 
+export const loadFromLocalStorage = (root = document.querySelector('main')) => {
+    console.group('loadFromLocalStorage()')
+
+    const rawData = window.localStorage.getItem('data')
+    const data    = JSON.parse(rawData)
+    console.debug('data', data)
+
+    console.groupEnd()
+
+    return data
+}
+
+export const saveToLocalStorage = (root = document.querySelector('main')) => {
+    console.group('saveToLocalStorage()')
+    
+    const data = OrgToJSON(root)
+    console.debug('data', data)
+
+    window.localStorage.setItem('data', JSON.stringify(data))
+    console.groupEnd()
+}
+
 export default {
     ministriesToJson,
     groupToJson,
-    OrgToJSON
+    OrgToJSON,
+    loadFromLocalStorage,
+    saveToLocalStorage
 }

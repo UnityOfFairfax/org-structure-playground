@@ -59,3 +59,103 @@ button.new-ministry {
     display:        block;
     margin-left:    auto
 }
+
+/*
+ *  Mark items with a description 
+ */
+[data-description] .name::after {
+    /*
+        zero-width joiner: 
+        \0200D
+    */
+    /* trying for emoji equivalent of ℹ️ on Windows/Chrome... no luck */
+    content:    "\02139\0200D\0FE0F"; 
+    cursor:     help !important;
+
+    pointer-events: auto;
+
+    display:    block;
+    min-width:  2ch;
+    float:      right;
+
+    font-size:  x-small;
+    text-align: center;
+}
+
+/*
+ *  Pure CSS Tooltip technique thanks to Web Dev Simplified
+ *
+ *  https://www.youtube.com/watch?v=ujlpzTyJp-M
+ */
+main *[data-description] {
+    position: relative
+}
+
+main *[data-description]::before,
+main *[data-description]::after {
+    --scale: 0;
+    --tooltip-arrow-size: 10px;
+    --tooltip-background-color: rgba(0,0,0, 0.85);
+    /* --tooltip-translate-y */ /* undefined here; defined below */
+
+    box-sizing: border-box;
+
+    position:   absolute;
+    top:        0;
+    margin:     0 auto;
+
+    transform:
+        translateX( -50% )
+        translateY( var(--translate-y, 0) )
+        scale(      var(--scale) )
+        ;
+    transition-duration: 200ms;
+    transition-delay:    250ms;
+    transition-property: transform, opacity;
+    transform-origin:    bottom right;
+}
+
+
+
+main *[data-description]::before {
+    --translate-y: calc( -100% - var(--tooltip-arrow-size) );
+
+    content:    attr(data-description);
+
+    left:       50%;
+
+    padding:    1em;
+    width:      max-content;
+    max-width:  100%;
+
+    border-radius:  0.5em;
+    background:     var(--tooltip-background-color, black);
+    color:          white;
+
+    line-height:    1.5em;
+    font-size:      xx-small;
+    font-weight:    normal;
+}
+
+main *[data-description]::after {
+    --translate-y: calc( -1 * var(--tooltip-arrow-size) );
+
+    content: '';
+
+    transform-origin:   top right;
+    right:              0;
+
+    border:             var(--tooltip-arrow-size, 5px) solid transparent;
+    border-top-color:   var(--tooltip-background-color, black);
+}
+
+main *[data-description]:hover::before,
+main *[data-description]:hover::after {
+    --scale: 1;
+}
+
+main *[data-description].dragging:hover::before,
+main *[data-description].dragging:hover::after {
+    --scale: 0;
+    display: none;
+}

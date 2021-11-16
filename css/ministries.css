@@ -1,3 +1,5 @@
+@charset "utf-8";
+
 .ministry {
     margin:  0.25em;
     padding: 0.25em;
@@ -22,13 +24,7 @@
     opacity: 1
 }
 
-.ministry[data-description]::before {
-    cursor:     help;
-    display:    block;
-    float:      right;
-    font-size:  x-small;
-    content:    "ℹ️";
-}
+
 
 .ministries .ministry.sort-target,
 .ministries .ministry.sort-target ~ .ministry {
